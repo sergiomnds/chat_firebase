@@ -14,22 +14,30 @@ class UserImagePicker extends StatefulWidget {
 
 class _UserImagePickerState extends State<UserImagePicker> {
   File? _image;
+  bool _isPicking = false;
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
+    if (_isPicking) return;
+    _isPicking = true;
 
-    final pickedImage = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 50,
-      maxWidth: 150,
-    );
+    try {
+      final picker = ImagePicker();
 
-    if (pickedImage != null) {
-      setState(() {
-        _image = File(pickedImage.path);
-      });
+      final pickedImage = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+        maxWidth: 150,
+      );
 
-      widget.onImagePick(_image!);
+      if (pickedImage != null) {
+        setState(() {
+          _image = File(pickedImage.path);
+        });
+
+        widget.onImagePick(_image!);
+      }
+    } finally {
+      _isPicking = false;
     }
   }
 

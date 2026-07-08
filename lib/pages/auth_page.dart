@@ -1,6 +1,7 @@
 import 'package:chat_firebase/components/auth_form.dart';
 import 'package:chat_firebase/core/models/auth_form_data.dart';
 import 'package:chat_firebase/core/services/auth/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthPage extends StatefulWidget {
@@ -15,23 +16,31 @@ class _AuthPageState extends State<AuthPage> {
 
   Future<void> _handleSubmit(AuthFormData formData) async {
     try {
+      if (!mounted) return;
       setState(() {
         _isLoading = true;
       });
 
       if (formData.isLogin) {
-        AuthService().login(formData.email, formData.password);
+        await AuthService().login(formData.email, formData.password);
       } else {
-        AuthService().signup(
+        await AuthService().signup(
           formData.name,
           formData.email,
           formData.password,
           formData.image,
         );
       }
-    } catch (error) {
-      //Tratar Erros
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Falha na autenticação'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

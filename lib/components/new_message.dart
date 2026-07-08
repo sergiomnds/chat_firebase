@@ -19,6 +19,9 @@ class _NewMessageState extends State<NewMessage> {
     if (user != null) {
       await ChatService().save(_message, user);
       _messageController.clear();
+      setState(() {
+        _message = '';
+      });
     }
   }
 
